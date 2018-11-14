@@ -77,17 +77,6 @@ public class LineChartView extends View {
         lineColor = array.getColor(R.styleable.LineChartView_lineColor,lineColor);
         lineWidth = array.getDimension(R.styleable.LineChartView_lineWidth,lineWidth);
         array.recycle();
-        points.add(new Point(10,10));
-        points.add(new Point(11,18));
-        points.add(new Point(12,12));
-        points.add(new Point(13,18));
-        points.add(new Point(14,14));
-        points.add(new Point(15,15));
-        points.add(new Point(16,30));
-        points.add(new Point(17,17));
-        points.add(new Point(18,25));
-        points.add(new Point(19,38));
-        points.add(new Point(20,20));
     }
 
 
@@ -189,6 +178,7 @@ public class LineChartView extends View {
             xMax = xAxisSetMaxValue;
         }
         xValueCount = (int)(xMax-xMin);
+        xValueCount = xValueCount<=0?1:xValueCount;
         float segmentLength = xAxisLength / xValueCount;
 
         //画折线
@@ -238,6 +228,9 @@ public class LineChartView extends View {
 
     }
 
+    /**
+     * 设置数据
+     */
     public void setPoints(List<Point> points){
         this.points.clear();
         this.points.addAll(points);
@@ -252,6 +245,10 @@ public class LineChartView extends View {
         xAxisSetMax = true;
     }
 
+
+    /**
+     * 设置x轴最小值
+     */
     public void setXAxisSetMinValue(float xMin){
         xAxisSetMinValue = xMin;
         xAxisSetMin = true;
@@ -271,6 +268,21 @@ public class LineChartView extends View {
      */
     public void setYAxisUnit(String unit){
         yAxisUnit = unit;
+    }
+
+
+    /**
+     * 设置x轴的数值的大小
+     */
+    public void setXAxisValueTextSize(int textSize){
+        xAxisTextSize = textSize;
+    }
+
+    /**
+     * 设置y轴的数值的大小
+     */
+    public void setYAxisValueTextSize(int textSize){
+        yAxisTextSize = textSize;
     }
 
 
