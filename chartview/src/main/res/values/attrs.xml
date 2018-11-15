@@ -17,8 +17,20 @@
         <attr name="lineColor" format="color"/>
         <!--绘制图标的区域距离控件的边的距离，类似padding,默认10-->
         <attr name="chartPadding" format="dimension"/>
-
-
+        <!--x轴文字的颜色-->
+        <attr name="xAxisTextColor" format="color"/>
+        <!--y轴文字的颜色-->
+        <attr name="yAxisTextColor" format="color"/>
+        <!--x轴文字的大小-->
+        <attr name="xAxisTextSize" format="dimension"/>
+        <!--y轴文字的大小-->
+        <attr name="yAxisTextSize" format="dimension"/>
+        <!--数据为空时显示的文字-->
+        <attr name="empty_text" format="string"/>
+        <!--数据为空时显示的文字的大小-->
+        <attr name="empty_text_size" format="dimension"/>
+        <!--数据为空时显示的文字的颜色-->
+        <attr name="empty_text_color" format="color"/>
 
     </declare-styleable>
     

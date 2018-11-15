@@ -36,19 +36,18 @@ public class LineChartView extends View {
     private int xAxisColor = 0xff999999;//x轴颜色
     private int yAxisColor = 0xff999999;//y轴颜色
     private int lineColor = 0xff9646fd;//折线颜色
+    private int xAxisTextColor = 0xff999999;//x轴文字颜色
+    private int yAxisTextColor = 0xff999999;//y轴文字颜色
     private float xAxisWidth = 2f;//x轴宽度
     private float yAxisWidth = 2f;//y轴宽度
     private float lineWidth = 2f;//折线宽度
     private float chartPadding = 20f;//绘制图标的区域距离控件的边的距离，类似padding,默认10
     private String xAxisUnit = "";//x轴的数值的单位
     private String yAxisUnit = "";//y轴的数值的单位
-    private boolean xAxisAutoValue = true;//设置了x轴的最大值与最小值后，为false
-    private float xAxisSetMaxValue = 19f;//x轴的最大值
-    private float xAxisSetMinValue = 11f;//x轴的最小值
+    private float xAxisSetMaxValue = 1f;//x轴的最大值
+    private float xAxisSetMinValue = 0f;//x轴的最小值
     private boolean xAxisSetMax = false;//是否设置了x轴的最大值
     private boolean xAxisSetMin = false;//是否设置了x轴的最小值
-    private float yAxisMaxValue = 1000f;//y轴的最大值
-    private float yAxisMinValue = 1f;//y轴的最小值
     private float xAxisTextSpace = 20f;//x轴与文字的间距
     private float yAxisTextSpace = 20f;//y轴与文字的间距
     private float xAxisTextSize = 20f;
@@ -57,6 +56,9 @@ public class LineChartView extends View {
     private int xValueCount = 12;     //x轴坐标点的数量，默认0，则全部显示
     private int yValueCount = 5;     //y轴坐标点的数量，默认5个
     private int xValueSpace = 2;      //x轴坐标点间隔多少个显示，默认为0，就是没有间隔，都显示
+
+    private XValueFormatter xValueFormatter;//x轴文字的显示形式
+    private YValueFormatter yValueFormatter;//y轴文字的显示形式
 
     public LineChartView(Context context) {
         this(context,null);
@@ -76,6 +78,13 @@ public class LineChartView extends View {
         chartPadding = array.getDimension(R.styleable.LineChartView_chartPadding, chartPadding);
         lineColor = array.getColor(R.styleable.LineChartView_lineColor,lineColor);
         lineWidth = array.getDimension(R.styleable.LineChartView_lineWidth,lineWidth);
+        xAxisTextSize = array.getDimension(R.styleable.LineChartView_xAxisTextSize,xAxisTextSize);
+        yAxisTextSize = array.getDimension(R.styleable.LineChartView_yAxisTextSize,yAxisTextSize);
+        xAxisTextColor = array.getColor(R.styleable.LineChartView_xAxisTextColor,xAxisTextColor);
+        yAxisTextColor = array.getColor(R.styleable.LineChartView_yAxisTextColor,yAxisTextColor);
+        emptyTextStr = array.getString(R.styleable.LineChartView_empty_text);
+        emptyTextSize = array.getDimension(R.styleable.LineChartView_empty_text_size,emptyTextSize);
+        emptyTextColor = array.getColor(R.styleable.LineChartView_empty_text_color,emptyTextColor);
         array.recycle();
     }
 
@@ -135,7 +144,7 @@ public class LineChartView extends View {
 
         //画y轴
         paint.setStrokeWidth(yAxisWidth);
-        paint.setColor(xAxisColor);
+        paint.setColor(yAxisColor);
         float yStartX = getPaddingStart()+chartPadding+yTextWidth+yAxisTextSpace;
         float yStartY = getPaddingTop()+chartPadding;
         float yStopX = getPaddingStart()+chartPadding+yTextWidth+yAxisTextSpace;
@@ -162,8 +171,6 @@ public class LineChartView extends View {
         float yValueX = getPaddingStart()+chartPadding;//y轴的x坐标
 
 
-
-        textPaint.setTextSize(xAxisTextSize);
         //设置X轴上坐标点的数量，如果用户没有设备，那么就是点的数量，如果设置了就是用户设置的数量
         xValueCount = xValueCount==0?points.size():xValueCount;
 
@@ -205,10 +212,17 @@ public class LineChartView extends View {
         }
 
         //画x轴线上的点的文字
+        textPaint.setTextSize(xAxisTextSize);
+        textPaint.setColor(xAxisTextColor);
         for (int i=0;i<=xValueCount;i++){
             float x = xStartX + i*segmentLength;
             float xValue = xMin+i;
-            String xValueStr = String.valueOf((int)xValue)+xAxisUnit;
+            String xValueStr = "";
+            if (xValueFormatter!=null){
+                xValueStr = xValueFormatter.getFormattedValue(xValue);
+            }else {
+                xValueStr = String.valueOf((int)xValue)+xAxisUnit;
+            }
             float xValueWidth = textPaint.measureText(xValueStr);
             if (i%(xValueSpace+1)==0){
                 canvas.drawText(xValueStr,x - xValueWidth/2,xValueY,textPaint);
@@ -218,11 +232,17 @@ public class LineChartView extends View {
 
         //画y轴线上的点的文字
         textPaint.setTextSize(yAxisTextSize);
+        textPaint.setColor(yAxisTextColor);
         for (int i=0;i<=yValueCount;i++){
             float y = yStopY - ((float) i/yValueCount)*yAxisLength;
             float yValue = ((float) i/yValueCount)*(yMax-yMin)+yMin;
-            String yValueFormat= decimalFormat.format(yValue)+yAxisUnit;
-            canvas.drawText(yValueFormat,yValueX,y+yValueHeight/2,textPaint);
+            String yValueStr = "";
+            if (yValueFormatter!=null){
+                yValueStr = yValueFormatter.getFormatterValue(yValue);
+            }else {
+                yValueStr = decimalFormat.format(yValue)+yAxisUnit;
+            }
+            canvas.drawText(yValueStr,yValueX,y+yValueHeight/2,textPaint);
         }
 
 
@@ -270,21 +290,38 @@ public class LineChartView extends View {
         yAxisUnit = unit;
     }
 
-
     /**
-     * 设置x轴的数值的大小
+     * 设置x轴坐标点的间隔
+     * @param xValueSpace
      */
-    public void setXAxisValueTextSize(int textSize){
-        xAxisTextSize = textSize;
+    public void setXValueSpace(int xValueSpace) {
+        this.xValueSpace = xValueSpace;
     }
 
     /**
-     * 设置y轴的数值的大小
+     * 设置y轴坐标的数量
+     * @param yValueCount
      */
-    public void setYAxisValueTextSize(int textSize){
-        yAxisTextSize = textSize;
+    public void setYValueCount(int yValueCount) {
+        this.yValueCount = yValueCount;
     }
 
+    /**
+     * 设置x轴与文字的距离
+     * @param xAxisTextSpace
+     */
+    public void setxAxisTextSpace(float xAxisTextSpace) {
+        this.xAxisTextSpace = xAxisTextSpace;
+    }
+
+
+    /**
+     * 设置y轴与文字的距离
+     * @param yAxisTextSpace
+     */
+    public void setyAxisTextSpace(float yAxisTextSpace) {
+        this.yAxisTextSpace = yAxisTextSpace;
+    }
 
     private float getYMax(){
         float yMax = points.get(0).getY();
@@ -319,4 +356,23 @@ public class LineChartView extends View {
         return xMin;
     }
 
+    public interface XValueFormatter{
+        String getFormattedValue(float value);
+    }
+
+    /**
+     * 设置x轴显示文字的形式
+     * @param xValueFormatter
+     */
+    public void setXValueFormatter(XValueFormatter xValueFormatter) {
+        this.xValueFormatter = xValueFormatter;
+    }
+
+    public interface YValueFormatter{
+        String getFormatterValue(float value);
+    }
+
+    public void setYValueFormatter(YValueFormatter yValueFormatter) {
+        this.yValueFormatter = yValueFormatter;
+    }
 }
