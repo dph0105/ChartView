@@ -53,7 +53,7 @@ public class LineChartView extends View {
     private float xAxisTextSize = 20f;
     private float yAxisTextSize = 30f;
 
-    private int xValueCount = 12;     //x轴坐标点的数量，默认0，则全部显示
+    private int xValueVisibleCount = 0;     //x轴坐标点的数量，默认0，则全部显示
     private int yValueCount = 5;     //y轴坐标点的数量，默认5个
     private int xValueSpace = 2;      //x轴坐标点间隔多少个显示，默认为0，就是没有间隔，都显示
 
@@ -171,8 +171,8 @@ public class LineChartView extends View {
         float yValueX = getPaddingStart()+chartPadding;//y轴的x坐标
 
 
-        //设置X轴上坐标点的数量，如果用户没有设备，那么就是点的数量，如果设置了就是用户设置的数量
-        xValueCount = xValueCount==0?points.size():xValueCount;
+//        //设置X轴坐标点的数量，如果用户没有设置，那么就是点的数量，如果设置了就是用户设置的数量
+//        xValueCount = xValueCount==0?points.size():xValueCount;
 
         //如果用户设置了x轴的最小值
         if (xAxisSetMin){
@@ -184,7 +184,7 @@ public class LineChartView extends View {
             //新得最大值为用户设置得最大值
             xMax = xAxisSetMaxValue;
         }
-        xValueCount = (int)(xMax-xMin);
+        int xValueCount = (int)(xMax-xMin);
         xValueCount = xValueCount<=0?1:xValueCount;
         float segmentLength = xAxisLength / xValueCount;
 
