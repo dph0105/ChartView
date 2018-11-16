@@ -116,6 +116,10 @@ public class LineChartView extends View {
         super.onDraw(canvas);
         textPaint.setAntiAlias(true);
         paint.setAntiAlias(true);
+        float yMax = getYMax();
+        float yMin = getYMin();
+        float xMax = getXMax();
+        float xMin = getXMin();
         //如果没有数据，就提示没有数据的提示语
         if (points.isEmpty()){
             textPaint.setTextSize(emptyTextSize);
@@ -129,9 +133,15 @@ public class LineChartView extends View {
             return;
         }
         //获得y轴左边的文字需要的宽度和高度
+
         textPaint.setTextSize(yAxisTextSize);
-        String format = decimalFormat.format(points.get(0).getY());
-        String yStr = format + yAxisUnit;
+        String yStr = "";
+        if (yValueFormatter!=null){
+            yStr = yValueFormatter.getFormatterValue(yMax);
+        }else {
+            yStr = decimalFormat.format(yMax)+yAxisUnit;
+        }
+        yStr  = yStr +yAxisUnit;
         float yTextWidth = textPaint.measureText(yStr);//y轴文字的宽度
         Paint.FontMetrics yFm = textPaint.getFontMetrics();
         float yValueHeight = yFm.descent - yFm.ascent;//y轴文字的高度
@@ -163,10 +173,7 @@ public class LineChartView extends View {
 
         float xAxisLength = xStopX - xStartX;//x轴的长度
         float yAxisLength = yStopY - yStartY;//y轴的长度
-        float yMax = getYMax();
-        float yMin = getYMin();
-        float xMax = getXMax();
-        float xMin = getXMin();
+
         float xValueY = this.height -(getPaddingBottom()+chartPadding);//x轴的y坐标
         float yValueX = getPaddingStart()+chartPadding;//y轴的x坐标
 
