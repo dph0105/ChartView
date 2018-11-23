@@ -27,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
         points.add(new Point(6,5000));
         points.add(new Point(7,25));
         points.add(new Point(8,6000));
-        points.add(new Point(9,8000));
-        points.add(new Point(10,90000));
+        points.add(new Point(9,8000.52f));
+        points.add(new Point(10,90000.38f));
         points.add(new Point(11,32));
         points.add(new Point(12,20));
         points.add(new Point(1,1));

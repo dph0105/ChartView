@@ -24,7 +24,7 @@ public class LineChartView extends View {
 
 
     private List<Point> points = new ArrayList<>();
-    private DecimalFormat decimalFormat=new DecimalFormat(".00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+    private DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
     private Paint paint = new Paint();
     private TextPaint textPaint = new TextPaint();
     private int width = 0;//控件的宽
@@ -248,6 +248,9 @@ public class LineChartView extends View {
                 yValueStr = yValueFormatter.getFormatterValue(yValue);
             }else {
                 yValueStr = decimalFormat.format(yValue)+yAxisUnit;
+                if (yValueStr.contains(".00")){
+                    yValueStr = (int)yValue+yAxisUnit;
+                }
             }
             canvas.drawText(yValueStr,yValueX,y+yValueHeight/2,textPaint);
         }
