@@ -116,10 +116,7 @@ public class LineChartView extends View {
         super.onDraw(canvas);
         textPaint.setAntiAlias(true);
         paint.setAntiAlias(true);
-        float yMax = getYMax();
-        float yMin = getYMin();
-        float xMax = getXMax();
-        float xMin = getXMin();
+
         //如果没有数据，就提示没有数据的提示语
         if (points.isEmpty()){
             textPaint.setTextSize(emptyTextSize);
@@ -132,8 +129,12 @@ public class LineChartView extends View {
             canvas.drawText(emptyTextStr,x,y,textPaint);
             return;
         }
-        //获得y轴左边的文字需要的宽度和高度
+        float yMax = getYMax();
+        float yMin = getYMin();
+        float xMax = getXMax();
+        float xMin = getXMin();
 
+        //获得y轴左边的文字需要的宽度和高度
         textPaint.setTextSize(yAxisTextSize);
         String yStr = "";
         if (yValueFormatter!=null){
