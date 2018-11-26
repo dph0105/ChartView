@@ -56,6 +56,8 @@ public class LineChartView extends View {
     private int xValueVisibleCount = 0;     //x轴坐标点的数量，默认0，则全部显示
     private int yValueCount = 5;     //y轴坐标点的数量，默认5个
     private int xValueSpace = 2;      //x轴坐标点间隔多少个显示，默认为0，就是没有间隔，都显示
+    private boolean isYValueShowInteger = false;//y轴文字是否是显示整数
+
 
     private XValueFormatter xValueFormatter;//x轴文字的显示形式
     private YValueFormatter yValueFormatter;//y轴文字的显示形式
@@ -255,8 +257,6 @@ public class LineChartView extends View {
             }
             canvas.drawText(yValueStr,yValueX,y+yValueHeight/2,textPaint);
         }
-
-
     }
 
     /**
@@ -339,6 +339,15 @@ public class LineChartView extends View {
         for (Point point : points) {
             yMax = point.getY()>yMax?point.getY():yMax;
         }
+        if (isYValueShowInteger){
+            if (yMax-(int)yMax>0){
+                yMax = (int)(yMax+1);
+            }
+            int v = (int) (yMax % yValueCount);
+            if (v !=0){
+                yMax = yMax+(yValueCount-v);
+            }
+        }
         return yMax;
     }
 
@@ -347,7 +356,7 @@ public class LineChartView extends View {
         for (Point point : points) {
             yMin = point.getY()<yMin?point.getY():yMin;
         }
-        return yMin;
+        return isYValueShowInteger?(int)yMin:yMin;
     }
 
 
@@ -383,7 +392,19 @@ public class LineChartView extends View {
         String getFormatterValue(float value);
     }
 
+    /**
+     * 设置y轴数值显示形式
+     * @param yValueFormatter
+     */
     public void setYValueFormatter(YValueFormatter yValueFormatter) {
         this.yValueFormatter = yValueFormatter;
+    }
+
+    /**
+     * 设置y轴数值为整数
+     * @param YValueShowInteger
+     */
+    public void setYValueShowInteger(boolean YValueShowInteger) {
+        isYValueShowInteger = YValueShowInteger;
     }
 }
