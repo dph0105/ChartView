@@ -136,6 +136,10 @@ public class LineChartView extends View {
         float xMax = getXMax();
         float xMin = getXMin();
 
+        if (yMax - yMin==0){
+            yMax += 1;
+        }
+
         //获得y轴左边的文字需要的宽度和高度
         textPaint.setTextSize(yAxisTextSize);
         String yStr = "";
