@@ -20,20 +20,18 @@ public class MainActivity extends AppCompatActivity {
         LineChartView lcv = findViewById(R.id.lcv);
         List<Point> points = new ArrayList<>();
         points.add(new Point(1,0));
-        points.add(new Point(2,1000));
-        points.add(new Point(3,2002));
-        points.add(new Point(4,3000));
-        points.add(new Point(5,4000));
-        points.add(new Point(6,5000));
-        points.add(new Point(7,25));
-        points.add(new Point(8,6000));
-        points.add(new Point(9,8000.52f));
-        points.add(new Point(10,90000.38f));
-        points.add(new Point(11,32));
-        points.add(new Point(12,20));
-        points.add(new Point(1,1));
-        points.add(new Point(2,18));
-        points.add(new Point(3,39));
+//        points.add(new Point(2,0));
+//        points.add(new Point(3,0));
+//        points.add(new Point(4,0));
+//        points.add(new Point(5,0));
+//        points.add(new Point(6,0));
+//        points.add(new Point(7,0));
+//        points.add(new Point(8,0));
+//        points.add(new Point(9,0));
+//        points.add(new Point(10,0));
+//        points.add(new Point(11,0));
+//        points.add(new Point(12,0));
         lcv.setPoints(points);
+        lcv.setSinglePointSize(10f);
     }
 }

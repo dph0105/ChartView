@@ -26,6 +26,7 @@ public class LineChartView extends View {
     private List<Point> points = new ArrayList<>();
     private DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
     private Paint paint = new Paint();
+    private Paint pointPaint = new Paint();
     private TextPaint textPaint = new TextPaint();
     private int width = 0;//控件的宽
     private int height = 0;//控件的高
@@ -58,6 +59,9 @@ public class LineChartView extends View {
     private int xValueSpace = 2;      //x轴坐标点间隔多少个显示，默认为0，就是没有间隔，都显示
     private boolean isYValueShowInteger = false;//y轴文字是否是显示整数
 
+
+    private float singlePointSize = 30f;//只有一个点的时候，点的大小
+    private float normalPointSize = 2f;//正常状态点的大小
 
     private XValueFormatter xValueFormatter;//x轴文字的显示形式
     private YValueFormatter yValueFormatter;//y轴文字的显示形式
@@ -118,7 +122,7 @@ public class LineChartView extends View {
         super.onDraw(canvas);
         textPaint.setAntiAlias(true);
         paint.setAntiAlias(true);
-
+        pointPaint.setAntiAlias(true);
         //如果没有数据，就提示没有数据的提示语
         if (points.isEmpty()){
             textPaint.setTextSize(emptyTextSize);
@@ -207,6 +211,10 @@ public class LineChartView extends View {
         float oldY = 0f;
         paint.setColor(lineColor);
         paint.setStrokeWidth(lineWidth);
+
+        pointPaint.setColor(lineColor);
+        float radius = points.size()==1?singlePointSize:normalPointSize;
+
         for (int i = 0; i < points.size(); i++) {
             //如果点小于最小值，大于最大值，就不画
             if (points.get(i).getX()<xMin||points.get(i).getX()>xMax){
@@ -214,6 +222,9 @@ public class LineChartView extends View {
             }
             float pointX = xStartX + (points.get(i).getX() - xMin) * segmentLength;
             float pointY = yStopY - ((points.get(i).getY() - yMin) / (yMax - yMin)) * yAxisLength;
+
+            canvas.drawCircle(pointX,pointY,radius,pointPaint);
+
             if (oldX == 0f && oldY == 0f) {
                 oldX = pointX;
                 oldY = pointY;
@@ -410,5 +421,13 @@ public class LineChartView extends View {
      */
     public void setYValueShowInteger(boolean YValueShowInteger) {
         isYValueShowInteger = YValueShowInteger;
+    }
+
+    public void setSinglePointSize(float singlePointSize) {
+        this.singlePointSize = singlePointSize;
+    }
+
+    public void setNormalPointSize(float normalPointSize) {
+        this.normalPointSize = normalPointSize;
     }
 }

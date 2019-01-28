@@ -14,7 +14,7 @@
         app:empty_text="没有数据"
         app:empty_text_color="#9646fd"
         app:empty_text_size="30sp"
-
+        android:layout_margin="30dp"
         />
 
 </android.support.constraint.ConstraintLayout>
