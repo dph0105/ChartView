@@ -214,7 +214,7 @@ public class LineChartView extends View {
 
         pointPaint.setColor(lineColor);
         float radius = points.size()==1?singlePointSize:normalPointSize;
-
+        textPaint.setTextSize(14f);
         for (int i = 0; i < points.size(); i++) {
             //如果点小于最小值，大于最大值，就不画
             if (points.get(i).getX()<xMin||points.get(i).getX()>xMax){
@@ -224,6 +224,7 @@ public class LineChartView extends View {
             float pointY = yStopY - ((points.get(i).getY() - yMin) / (yMax - yMin)) * yAxisLength;
 
             canvas.drawCircle(pointX,pointY,radius,pointPaint);
+            canvas.drawText((int)points.get(i).getY()+yAxisUnit,pointX,pointY-20,textPaint);
 
             if (oldX == 0f && oldY == 0f) {
                 oldX = pointX;
