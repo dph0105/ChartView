@@ -20,8 +20,8 @@ public class MainActivity extends AppCompatActivity {
         LineChartView lcv = findViewById(R.id.lcv);
         List<Point> points = new ArrayList<>();
         points.add(new Point(1,0));
-//        points.add(new Point(2,0));
-//        points.add(new Point(3,0));
+        points.add(new Point(2,10));
+        points.add(new Point(3,5));
 //        points.add(new Point(4,0));
 //        points.add(new Point(5,0));
 //        points.add(new Point(6,0));
@@ -33,5 +33,7 @@ public class MainActivity extends AppCompatActivity {
 //        points.add(new Point(12,0));
         lcv.setPoints(points);
         lcv.setSinglePointSize(10f);
+        lcv.setYAxisUnit("次");
+
     }
 }

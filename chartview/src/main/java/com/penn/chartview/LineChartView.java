@@ -53,7 +53,7 @@ public class LineChartView extends View {
     private float yAxisTextSpace = 20f;//y轴与文字的间距
     private float xAxisTextSize = 20f;
     private float yAxisTextSize = 30f;
-
+    private float pointTextSize = 14f;
     private int xValueVisibleCount = 0;     //x轴坐标点的数量，默认0，则全部显示
     private int yValueCount = 5;     //y轴坐标点的数量，默认5个
     private int xValueSpace = 2;      //x轴坐标点间隔多少个显示，默认为0，就是没有间隔，都显示
@@ -167,7 +167,7 @@ public class LineChartView extends View {
         paint.setStrokeWidth(yAxisWidth);
         paint.setColor(yAxisColor);
         float yStartX = getPaddingStart()+chartPadding+yTextWidth+yAxisTextSpace;
-        float yStartY = getPaddingTop()+chartPadding;
+        float yStartY = getPaddingTop()+chartPadding+30f;
         float yStopX = getPaddingStart()+chartPadding+yTextWidth+yAxisTextSpace;
         float yStopY = this.height - (getPaddingBottom()+chartPadding+xTextHeight+xAxisTextSpace);
         canvas.drawLine(yStartX,yStartY,yStopX,yStopY,paint);
@@ -177,7 +177,7 @@ public class LineChartView extends View {
         paint.setColor(xAxisColor);
         float xStartX = getPaddingStart()+chartPadding+yTextWidth+yAxisTextSpace;
         float xStartY = this.height - (getPaddingBottom()+chartPadding+xTextHeight+xAxisTextSpace);
-        float xStopX = this.width - (getPaddingEnd()+chartPadding);
+        float xStopX = this.width - (getPaddingEnd()+chartPadding+30f);
         float xStopY = this.height - (getPaddingBottom()+chartPadding+xTextHeight+xAxisTextSpace);
         canvas.drawLine(xStartX,xStartY,xStopX,xStopY,paint);
 
@@ -224,7 +224,7 @@ public class LineChartView extends View {
             float pointY = yStopY - ((points.get(i).getY() - yMin) / (yMax - yMin)) * yAxisLength;
 
             canvas.drawCircle(pointX,pointY,radius,pointPaint);
-            canvas.drawText((int)points.get(i).getY()+yAxisUnit,pointX,pointY-20,textPaint);
+            canvas.drawText((int)points.get(i).getY()+yAxisUnit,pointX,pointY-10,textPaint);
 
             if (oldX == 0f && oldY == 0f) {
                 oldX = pointX;
