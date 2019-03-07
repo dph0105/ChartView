@@ -42,8 +42,6 @@ public class LineChartView extends View {
     private float yAxisWidth = 2f;//y轴宽度
     private float lineWidth = 2f;//折线宽度
     private float chartPadding = 20f;//绘制图标的区域距离控件的边的距离，类似padding,默认10
-    private String xAxisUnit = "";//x轴的数值的单位
-    private String yAxisUnit = "";//y轴的数值的单位
     private float xAxisSetMaxValue = 1f;//x轴的最大值
     private float xAxisSetMinValue = 0f;//x轴的最小值
     private boolean xAxisSetMax = false;//是否设置了x轴的最大值
@@ -150,7 +148,7 @@ public class LineChartView extends View {
         if (yValueFormatter!=null){
             yStr = yValueFormatter.getFormatterValue(yMax);
         }else {
-            yStr = yMax+yAxisUnit;
+            yStr = String.valueOf(yMax);
         }
         float yTextWidth = textPaint.measureText(yStr);//y轴文字的宽度
         Paint.FontMetrics yFm = textPaint.getFontMetrics();
@@ -214,7 +212,7 @@ public class LineChartView extends View {
                 pointStr = pointValueFormatter.getFormatterValue(points.get(i).getY());
             }else {
                 //如果有小数，那么就格式化
-                pointStr = points.get(i).getY()+yAxisUnit;
+                pointStr = String.valueOf(points.get(i).getY());
             }
             canvas.drawText(pointStr,pointX,pointY-10,textPaint);
 
@@ -241,7 +239,7 @@ public class LineChartView extends View {
             if (xValueFormatter!=null){
                 xValueStr = xValueFormatter.getFormattedValue(points.get(i).getX());
             }else {
-                xValueStr = String.valueOf((int)points.get(i).getX())+xAxisUnit;
+                xValueStr = String.valueOf((int)points.get(i).getX());
             }
             float xValueWidth = textPaint.measureText(xValueStr);
             if (count<=5){
@@ -258,19 +256,27 @@ public class LineChartView extends View {
         //画y轴线上的点的文字
         textPaint.setTextSize(yAxisTextSize);
         textPaint.setColor(yAxisTextColor);
+
+
+
+
         for (int i=0;i<=yValueCount;i++){
             float y = yStopY - ((float) i/yValueCount)*yAxisLength;
             float yValue;
+
             if ((yMax-yMin)/yValueCount<1){
                 yValue = yMin+i;
             }else {
                 yValue = ((float) i/yValueCount)*(yMax-yMin)+yMin;
             }
+
+
+
             String yValueStr = "";
             if (yValueFormatter!=null){
                 yValueStr = yValueFormatter.getFormatterValue(yValue);
             }else {
-                yValueStr = yValue+yAxisUnit;
+                yValueStr = String.valueOf(yValue);
             }
             canvas.drawText(yValueStr,yValueX,y+yValueHeight/2,textPaint);
         }
@@ -302,21 +308,6 @@ public class LineChartView extends View {
         xAxisSetMin = true;
     }
 
-
-
-    /**
-     * 设置x轴的数值的单位
-     */
-    public void setXAxisUnit(String unit){
-        xAxisUnit = unit;
-    }
-
-    /**
-     * 设置y轴的数值的单位
-     */
-    public void setYAxisUnit(String unit){
-        yAxisUnit = unit;
-    }
 
     /**
      * 设置x轴坐标点的间隔
@@ -356,9 +347,17 @@ public class LineChartView extends View {
         for (Point point : points) {
             yMax = point.getY()>yMax?point.getY():yMax;
         }
-        if (yValueFormatter!=null){
-            String formatterValue = yValueFormatter.getFormatterValue(yMax);
-            yMax = Float.valueOf(formatterValue);
+        //如果y轴要显示整数，那么最大值需要是，y轴上间隔的个数的倍数
+        if (isYValueShowInteger){
+            if (yMax-(int)yMax>0){
+                //如果有小数
+                yMax = (int)(yMax+1);
+            }
+            float section = yMax - getYMin();
+            float remainder = section % (yValueCount);
+            if (remainder >0) {
+                yMax += (yValueCount-remainder);
+            }
         }
         return yMax;
     }
@@ -368,9 +367,8 @@ public class LineChartView extends View {
         for (Point point : points) {
             yMin = point.getY()<yMin?point.getY():yMin;
         }
-        if (yValueFormatter!=null){
-            String formatterValue = yValueFormatter.getFormatterValue(yMin);
-            yMin = Float.valueOf(formatterValue);
+        if (isYValueShowInteger){
+            yMin = (int)yMin;
         }
         return yMin;
     }

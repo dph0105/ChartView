@@ -27,19 +27,25 @@ public class MainActivity extends AppCompatActivity {
         points.add(new Point(5,0));
         points.add(new Point(6,0));
         points.add(new Point(7,0));
-        points.add(new Point(8,0));
-        points.add(new Point(9,0));
-        points.add(new Point(10,0));
-        points.add(new Point(11,0));
-        points.add(new Point(12,0));
+//        points.add(new Point(8,0));
+//        points.add(new Point(9,0));
+//        points.add(new Point(10,0));
+//        points.add(new Point(11,0));
+//        points.add(new Point(12,0));
         lcv.setPoints(points);
         lcv.setSinglePointSize(10f);
-        lcv.setYAxisUnit("次");
-        lcv.setYValueFormatter(new LineChartView.YValueFormatter() {
-            @Override
-            public String getFormatterValue(float value) {
-                return String.valueOf((int)value);
-            }
-        });
+//        lcv.setYValueFormatter(new LineChartView.YValueFormatter() {
+//            @Override
+//            public String getFormatterValue(float value) {
+//                return String.valueOf((int)value)+"次";
+//            }
+//        });
+//        lcv.setPointValueFormatter(new LineChartView.PointValueFormatter() {
+//            @Override
+//            public String getFormatterValue(float value) {
+//                return String.valueOf(value)+"次";
+//            }
+//        });
+//        lcv.setYValueShowInteger(true);
     }
 }
