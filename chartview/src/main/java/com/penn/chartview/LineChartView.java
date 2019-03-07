@@ -24,7 +24,6 @@ public class LineChartView extends View {
 
 
     private List<Point> points = new ArrayList<>();
-    private DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
     private Paint paint = new Paint();
     private Paint pointPaint = new Paint();
     private TextPaint textPaint = new TextPaint();
@@ -65,6 +64,7 @@ public class LineChartView extends View {
 
     private XValueFormatter xValueFormatter;//x轴文字的显示形式
     private YValueFormatter yValueFormatter;//y轴文字的显示形式
+    private PointValueFormatter pointValueFormatter;//点的文字显示形式
 
     public LineChartView(Context context) {
         this(context,null);
@@ -150,9 +150,8 @@ public class LineChartView extends View {
         if (yValueFormatter!=null){
             yStr = yValueFormatter.getFormatterValue(yMax);
         }else {
-            yStr = decimalFormat.format(yMax)+yAxisUnit;
+            yStr = yMax+yAxisUnit;
         }
-        yStr  = yStr +yAxisUnit;
         float yTextWidth = textPaint.measureText(yStr);//y轴文字的宽度
         Paint.FontMetrics yFm = textPaint.getFontMetrics();
         float yValueHeight = yFm.descent - yFm.ascent;//y轴文字的高度
@@ -188,23 +187,9 @@ public class LineChartView extends View {
         float xValueY = this.height -(getPaddingBottom()+chartPadding);//x轴的y坐标
         float yValueX = getPaddingStart()+chartPadding;//y轴的x坐标
 
+        //求x的每段的距离
 
-//        //设置X轴坐标点的数量，如果用户没有设置，那么就是点的数量，如果设置了就是用户设置的数量
-//        xValueCount = xValueCount==0?points.size():xValueCount;
-
-        //如果用户设置了x轴的最小值
-        if (xAxisSetMin){
-            //新的最小值为用户设置的最小值
-            xMin = xAxisSetMinValue;
-        }
-        //如果用户设置了x轴的最大值
-        if (xAxisSetMax) {
-            //新得最大值为用户设置得最大值
-            xMax = xAxisSetMaxValue;
-        }
-        int xValueCount = (int)(xMax-xMin);
-        xValueCount = xValueCount<=0?1:xValueCount;
-        float segmentLength = xAxisLength / xValueCount;
+        float segmentLength = points.size()==1?xAxisLength : (xAxisLength / (points.size()-1));
 
         //画折线
         float oldX = 0f;
@@ -220,11 +205,18 @@ public class LineChartView extends View {
             if (points.get(i).getX()<xMin||points.get(i).getX()>xMax){
                 continue;
             }
-            float pointX = xStartX + (points.get(i).getX() - xMin) * segmentLength;
+            float pointX = xStartX + i * segmentLength;
             float pointY = yStopY - ((points.get(i).getY() - yMin) / (yMax - yMin)) * yAxisLength;
 
             canvas.drawCircle(pointX,pointY,radius,pointPaint);
-            canvas.drawText((int)points.get(i).getY()+yAxisUnit,pointX,pointY-10,textPaint);
+            String pointStr = "";
+            if (pointValueFormatter!=null){
+                pointStr = pointValueFormatter.getFormatterValue(points.get(i).getY());
+            }else {
+                //如果有小数，那么就格式化
+                pointStr = points.get(i).getY()+yAxisUnit;
+            }
+            canvas.drawText(pointStr,pointX,pointY-10,textPaint);
 
             if (oldX == 0f && oldY == 0f) {
                 oldX = pointX;
@@ -240,19 +232,26 @@ public class LineChartView extends View {
         //画x轴线上的点的文字
         textPaint.setTextSize(xAxisTextSize);
         textPaint.setColor(xAxisTextColor);
-        for (int i=0;i<=xValueCount;i++){
+
+        int count = points.size();
+
+        for (int i=0;i<count;i++){
             float x = xStartX + i*segmentLength;
-            float xValue = xMin+i;
             String xValueStr = "";
             if (xValueFormatter!=null){
-                xValueStr = xValueFormatter.getFormattedValue(xValue);
+                xValueStr = xValueFormatter.getFormattedValue(points.get(i).getX());
             }else {
-                xValueStr = String.valueOf((int)xValue)+xAxisUnit;
+                xValueStr = String.valueOf((int)points.get(i).getX())+xAxisUnit;
             }
             float xValueWidth = textPaint.measureText(xValueStr);
-            if (i%(xValueSpace+1)==0){
+            if (count<=5){
                 canvas.drawText(xValueStr,x - xValueWidth/2,xValueY,textPaint);
+            }else {
+                if (i%(xValueSpace+1)==0){
+                    canvas.drawText(xValueStr,x - xValueWidth/2,xValueY,textPaint);
+                }
             }
+
         }
 
 
@@ -261,15 +260,17 @@ public class LineChartView extends View {
         textPaint.setColor(yAxisTextColor);
         for (int i=0;i<=yValueCount;i++){
             float y = yStopY - ((float) i/yValueCount)*yAxisLength;
-            float yValue = ((float) i/yValueCount)*(yMax-yMin)+yMin;
+            float yValue;
+            if ((yMax-yMin)/yValueCount<1){
+                yValue = yMin+i;
+            }else {
+                yValue = ((float) i/yValueCount)*(yMax-yMin)+yMin;
+            }
             String yValueStr = "";
             if (yValueFormatter!=null){
                 yValueStr = yValueFormatter.getFormatterValue(yValue);
             }else {
-                yValueStr = decimalFormat.format(yValue)+yAxisUnit;
-                if (yValueStr.contains(".00")){
-                    yValueStr = (int)yValue+yAxisUnit;
-                }
+                yValueStr = yValue+yAxisUnit;
             }
             canvas.drawText(yValueStr,yValueX,y+yValueHeight/2,textPaint);
         }
@@ -355,14 +356,9 @@ public class LineChartView extends View {
         for (Point point : points) {
             yMax = point.getY()>yMax?point.getY():yMax;
         }
-        if (isYValueShowInteger){
-            if (yMax-(int)yMax>0){
-                yMax = (int)(yMax+1);
-            }
-            int v = (int) (yMax % yValueCount);
-            if (v !=0){
-                yMax = yMax+(yValueCount-v);
-            }
+        if (yValueFormatter!=null){
+            String formatterValue = yValueFormatter.getFormatterValue(yMax);
+            yMax = Float.valueOf(formatterValue);
         }
         return yMax;
     }
@@ -372,7 +368,11 @@ public class LineChartView extends View {
         for (Point point : points) {
             yMin = point.getY()<yMin?point.getY():yMin;
         }
-        return isYValueShowInteger?(int)yMin:yMin;
+        if (yValueFormatter!=null){
+            String formatterValue = yValueFormatter.getFormatterValue(yMin);
+            yMin = Float.valueOf(formatterValue);
+        }
+        return yMin;
     }
 
 
@@ -414,6 +414,18 @@ public class LineChartView extends View {
      */
     public void setYValueFormatter(YValueFormatter yValueFormatter) {
         this.yValueFormatter = yValueFormatter;
+    }
+
+    public interface PointValueFormatter{
+        String getFormatterValue(float value);
+    }
+
+    /**
+     * 设置点的数值显示形式
+     * @param pointValueFormatter
+     */
+    public void setPointValueFormatter(PointValueFormatter pointValueFormatter) {
+        this.pointValueFormatter = pointValueFormatter;
     }
 
     /**
